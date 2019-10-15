@@ -1,7 +1,6 @@
 const path = require('path')
 
 module.exports = (env, argv) => {
-  console.log(argv)
   return {
     mode: process.env.NODE_ENV || 'development',
     entry: './src/index.ts',
