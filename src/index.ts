@@ -7,6 +7,8 @@ export interface Options {
   onActive?: () => void
   /** Callback called when an event cancels the idle state */
   onCancel?: (event: Event, idleLength: number) => void
+  /** Sets whether onIdle call should be recurred, i.e: setInterval vs setTimeout  */
+  recurIdleCall?: boolean
   /** Events that cancel the idle state */
   events?: (keyof WindowEventMap)[]
   /** Multiple tabs/windows option. Sets whether the idle state can be cancelled from multiple tabs/windows in one app.
@@ -22,19 +24,21 @@ class AppIdle {
     onActive: () => {},
     onIdle: () => {},
     onCancel: () => {},
+    recurIdleCall: false,
     events: ['mousemove', 'keydown', 'mousedown', 'touchstart'],
     multi: true,
     storageKey: 'AppIdle'
   }
-  private intervalId: number
   private lastIdle: number
   private idleState: boolean
+  private clearTimer: () => void
 
   constructor(options: Options) {
     this.options = Object.assign({}, this.options, options)
   }
 
   private eventHandler = (event: Event): void => {
+    /* istanbul ignore else*/
     if (this.options.multi) {
       this.notifyWindows()
     }
@@ -42,6 +46,7 @@ class AppIdle {
   }
 
   private storageHandler = (event: StorageEvent): void => {
+    /* istanbul ignore else*/
     if (event.key === this.options.storageKey) {
       this.notifyActive(event)
     }
@@ -52,6 +57,7 @@ class AppIdle {
       window.addEventListener(event, this.eventHandler)
     })
 
+    /* istanbul ignore else*/
     if (this.options.multi) {
       window.addEventListener('storage', this.storageHandler)
     }
@@ -64,6 +70,7 @@ class AppIdle {
       window.removeEventListener(event, this.eventHandler)
     })
 
+    /* istanbul ignore else*/
     if (this.options.multi) {
       window.removeEventListener('storage', this.storageHandler)
     }
@@ -74,18 +81,31 @@ class AppIdle {
   }
 
   private startTimer(): void {
+    const timer = this.options.recurIdleCall
+      ? {
+          set: window.setInterval,
+          clear: window.clearInterval
+        }
+      : {
+          set: window.setTimeout,
+          clear: window.clearTimeout
+        }
+
+    // save timer start, to calculate idle length
     this.lastIdle = Date.now()
-    this.intervalId = window.setInterval(() => {
+    const intervalId = timer.set(() => {
       this.idleState = true
       this.options.onIdle()
     }, this.options.timeout)
+    this.clearTimer = (): void => timer.clear(intervalId)
   }
 
   private stopTimer(): void {
-    if (this.intervalId) {
-      window.clearInterval(this.intervalId)
-      this.intervalId = null
+    /* istanbul ignore else*/
+    if (this.clearTimer) {
+      this.clearTimer()
     }
+    this.clearTimer = null
   }
 
   private restartTimer(): void {
@@ -94,6 +114,7 @@ class AppIdle {
   }
 
   private notifyActive(event: Event): void {
+    /* istanbul ignore else*/
     if (this.idleState) {
       this.idleState = false
       this.options.onActive()
