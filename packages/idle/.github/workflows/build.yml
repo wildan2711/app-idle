@@ -23,6 +23,11 @@ jobs:
       run: |
         yarn
         yarn build
-        yarn test
+        yarn test:coverage
       env:
         CI: true
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      if: runner.os == 'Linux'
+      with:
+        github-token: ${{ secrets.github_token }}
