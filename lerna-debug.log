@@ -1,0 +1,23 @@
+0 silly argv {
+0 silly argv   _: [ 'import' ],
+0 silly argv   flatten: true,
+0 silly argv   lernaVersion: '3.18.1',
+0 silly argv   '$0': '..\\..\\..\\..\\AppData\\Roaming\\npm-cache\\_npx\\10932\\node_modules\\lerna\\cli.js',
+0 silly argv   dir: '..\\idle\\'
+0 silly argv }
+1 notice cli v3.18.1
+2 verbose rootPath C:\Users\wildan\Documents\code\ts\idle-repo
+3 error Error: Command failed: git rev-parse HEAD
+3 error fatal: ambiguous argument 'HEAD': unknown revision or path not in the working tree.
+3 error Use '--' to separate paths from revisions, like this:
+3 error 'git <command> [<revision>...] -- [<file>...]'
+3 error
+3 error HEAD
+3 error
+3 error     at makeError (C:\Users\wildan\AppData\Roaming\npm-cache\_npx\10932\node_modules\lerna\node_modules\execa\index.js:174:9)
+3 error     at Function.module.exports.sync (C:\Users\wildan\AppData\Roaming\npm-cache\_npx\10932\node_modules\lerna\node_modules\execa\index.js:338:15)
+3 error     at Object.execSync (C:\Users\wildan\AppData\Roaming\npm-cache\_npx\10932\node_modules\lerna\node_modules\@lerna\child-process\index.js:26:16)
+3 error     at ImportCommand.execSync (C:\Users\wildan\AppData\Roaming\npm-cache\_npx\10932\node_modules\lerna\node_modules\@lerna\import\index.js:143:34)
+3 error     at ImportCommand.getCurrentSHA (C:\Users\wildan\AppData\Roaming\npm-cache\_npx\10932\node_modules\lerna\node_modules\@lerna\import\index.js:135:17)
+3 error     at ImportCommand.initialize (C:\Users\wildan\AppData\Roaming\npm-cache\_npx\10932\node_modules\lerna\node_modules\@lerna\import\index.js:104:31)
+3 error     at C:\Users\wildan\AppData\Roaming\npm-cache\_npx\10932\node_modules\lerna\node_modules\@lerna\command\index.js:271:24
