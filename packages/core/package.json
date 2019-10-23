@@ -1,0 +1,30 @@
+{
+  "name": "@idle/core",
+  "version": "0.0.1",
+  "description": "JS/TS library to detect when a user is idle on your app (including multiple tabs/windows)",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "webpack --watch",
+    "build": "cross-env NODE_ENV=production webpack",
+    "test": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wildan/app-idle.git"
+  },
+  "keywords": [
+    "idle",
+    "app",
+    "js"
+  ],
+  "author": "Wildan Maulana Syahidillah",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wildan/app-idle/issues"
+  },
+  "homepage": "https://github.com/wildan/app-idle#readme",
+  "typings": "types/index.d.ts",
+  "devDependencies": {
+    "parallel-webpack": "^2.4.0"
+  }
+}

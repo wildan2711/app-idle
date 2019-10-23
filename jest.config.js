@@ -1,7 +1,7 @@
+const base = require('./jest.config.base')
+
 module.exports = {
-  transform: {
-    '^.+\\.(t|j)sx?$': 'ts-jest'
-  },
-  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node']
+  ...base,
+  projects: ['<rootDir>/packages/*/jest.config.js'],
+  coverageDirectory: '<rootDir>/coverage/'
 }

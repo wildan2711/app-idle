@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>App Idle Example</title>
+    </head>
+    <body>
+        <div id="container">
+            
+        </div>
+        <script src="../dist/core.js"></script>
+        <script>
+            var container = document.getElementById('container');
+            function createNewLine(str = '') {
+                var newLine = document.createElement('div');
+                newLine.innerHTML = str;
+                container.appendChild(newLine);
+            }
+            var idle = new AppIdle({
+                timeout: 5000,
+                onIdle: function() {
+                    createNewLine('idle for 5 seconds');
+                },
+                onActive: function() {
+                    createNewLine('active after idle');
+                },
+                onCancel: function(event) {
+                    console.log('idle cancelled', event)
+                }
+            });
+            idle.start();
+            createNewLine('open multiple tabs/windows, stay idle for 5 seconds, the tabs should be in sync');
+        </script>
+    </body>
+</html>
