@@ -81,14 +81,15 @@ class AppIdle {
   }
 
   private startTimer(): void {
+    console.log(window)
     const timer = this.options.recurIdleCall
       ? {
-          set: window.setInterval,
-          clear: window.clearInterval
+          set: window.setInterval.bind(window),
+          clear: window.clearInterval.bind(window)
         }
       : {
-          set: window.setTimeout,
-          clear: window.clearTimeout
+          set: window.setTimeout.bind(window),
+          clear: window.clearTimeout.bind(window)
         }
 
     // save timer start, to calculate idle length

@@ -8,6 +8,6 @@
         "target": "es5",
         "moduleResolution": "node"
     },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules", "dist", "**/__tests__/**"]
+    "include": ["packages/**/*"],
+    "exclude": ["node_modules", "**/dist/**", "**/__tests__/**"]
 }
