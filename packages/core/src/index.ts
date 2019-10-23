@@ -81,7 +81,6 @@ class AppIdle {
   }
 
   private startTimer(): void {
-    console.log(window)
     const timer = this.options.recurIdleCall
       ? {
           set: window.setInterval.bind(window),
