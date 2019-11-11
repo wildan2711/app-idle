@@ -26,5 +26,10 @@
   "typings": "types/index.d.ts",
   "devDependencies": {
     "parallel-webpack": "^2.4.0"
-  }
+  },
+  "files": [
+    "dist",
+    "types",
+    "examples"
+  ]
 }
