@@ -18,11 +18,12 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: install yarn
       run: npm install -g yarn
-    - name: yarn install, build, test
+    - name: yarn install, bootstrap, build, test
       run: |
         yarn
+        yarn bootstrap
         yarn build
-        yarn test:coverage
+        yarn test
       env:
         CI: true
     - name: Coveralls
