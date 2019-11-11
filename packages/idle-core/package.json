@@ -1,6 +1,6 @@
 {
   "name": "@idle/core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "JS/TS library to detect when a user is idle on your app (including multiple tabs/windows)",
   "main": "dist/idle-core.esm.js",
   "scripts": {
