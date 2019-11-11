@@ -25,8 +25,9 @@ function createConfig(options) {
     resolve: {
       extensions: ['.tsx', '.ts', '.js']
     },
+    devtool: 'none',
     output: {
-      filename: `core${filenameSuffix}.js`,
+      filename: `idle-core${filenameSuffix}.js`,
       library: 'AppIdle',
       libraryExport: umd ? 'default' : undefined,
       libraryTarget: umd ? 'umd' : options.target,

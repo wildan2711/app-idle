@@ -2,10 +2,10 @@
   "name": "@idle/core",
   "version": "0.0.1",
   "description": "JS/TS library to detect when a user is idle on your app (including multiple tabs/windows)",
-  "main": "dist/index.js",
+  "main": "dist/idle-core.esm.js",
   "scripts": {
     "dev": "webpack --watch",
-    "build": "cross-env NODE_ENV=production webpack",
+    "build": "cross-env NODE_ENV=production webpack && tsc && mv src/index.js dist/idle-core.esm.js",
     "test": "jest --coverage"
   },
   "repository": {
