@@ -1,0 +1,16 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "declarationDir": "./types"
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "**/dist/**", "**/__tests__/**"],
+    "typedocOptions": {
+        "out": "docs",
+        "mode": "file",
+        "excludeNotExported": true,
+        "excludePrivate": true,
+        "exclude": "**/*+(test).ts",
+        "readme": "README.md"
+    }
+}

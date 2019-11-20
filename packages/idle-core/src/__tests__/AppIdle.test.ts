@@ -9,7 +9,7 @@ describe('idle state', () => {
         idleState = true
       }
     })
-    idle.start()
+    idle.reset().start()
 
     setTimeout(() => {
       expect(idleState).toBeTruthy()
@@ -29,7 +29,7 @@ describe('idle state', () => {
         idleState = false
       }
     })
-    idle.start()
+    idle.reset().start()
 
     setTimeout(() => {
       expect(idleState).toBeTruthy()
@@ -55,7 +55,7 @@ describe('"multi" option', () => {
       },
       storageKey
     })
-    idle.start()
+    idle.reset().start()
 
     setTimeout(() => {
       expect(idleState).toBeTruthy()
@@ -80,7 +80,7 @@ describe('"multi" option', () => {
       multi: false,
       storageKey
     })
-    idle.start()
+    idle.reset().start()
 
     setTimeout(() => {
       expect(idleState).toBeTruthy()
@@ -102,10 +102,10 @@ describe('"recurIdleCall" option', () => {
       },
       recurIdleCall: true
     })
-    idle.start()
+    idle.reset().start()
 
     setTimeout(() => {
-      expect(idleCount).toEqual(2)
+      expect(idleCount).toBe(2)
       idle.stop()
       done()
     }, 2500)
@@ -119,13 +119,82 @@ describe('"recurIdleCall" option', () => {
         idleCount++
       }
     })
-    idle.start()
+    idle.reset().start()
 
     setTimeout(() => {
-      expect(idleCount).toEqual(1)
+      expect(idleCount).toBe(1)
       idle.stop()
       done()
     }, 2500)
+  }, 10000)
+})
+
+describe('isIdle() method', () => {
+  test('should return false immediately after start() is called', (done) => {
+    const idle = new AppIdle({ timeout: 100 })
+    idle.start()
+
+    expect(idle.isIdle()).toBeFalsy()
+    done()
+  }, 10000)
+
+  test('should return true after 100 ms timeout', (done) => {
+    const idle = new AppIdle({ timeout: 100 })
+    idle.start()
+
+    setTimeout(() => {
+      expect(idle.isIdle()).toBeTruthy()
+      done()
+    }, 100)
+  }, 10000)
+})
+
+describe('getElapedTime() method', () => {
+  test('should return atleast 200 after 200 ms timeout', (done) => {
+    const idle = new AppIdle()
+    idle.start()
+
+    setTimeout(() => {
+      expect(idle.getElapsedTime()).toBeGreaterThanOrEqual(200)
+      done()
+    }, 200)
+  }, 10000)
+})
+
+describe('getRemainingTime() method', () => {
+  test('should return atmost 29800 after 200 ms timeout', (done) => {
+    const idle = new AppIdle()
+    idle.start()
+
+    setTimeout(() => {
+      expect(idle.getRemainingTime()).toBeLessThanOrEqual(29800)
+      done()
+    }, 200)
+  }, 10000)
+})
+
+describe('getLastActiveTime() method', () => {
+  test('should always return the same value before any idle canceller event', (done) => {
+    const idle = new AppIdle()
+    idle.start()
+
+    const lastIdle = idle.getLastActiveTime()
+    setTimeout(() => {
+      expect(idle.getLastActiveTime()).toBe(lastIdle)
+      done()
+    }, 200)
+  }, 10000)
+
+  test('should return the newest value after an idle canceller event', (done) => {
+    const idle = new AppIdle()
+    idle.start()
+
+    const lastIdle = idle.getLastActiveTime()
+    setTimeout(() => {
+      window.dispatchEvent(new Event('mousemove'))
+      expect(idle.getLastActiveTime()).not.toBe(lastIdle)
+      done()
+    }, 200)
   }, 10000)
 })
 
@@ -133,7 +202,7 @@ test('dumb test, just to get 100% funcs coverage', (done) => {
   const idle = new AppIdle({
     timeout: 100
   })
-  idle.start()
+  idle.reset().start()
 
   setTimeout(() => {
     window.dispatchEvent(new Event('mousemove'))

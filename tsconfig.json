@@ -1,13 +1,11 @@
 {
     "compilerOptions": {
         "declaration": true,
-        "declarationDir": "types",
+        "esModuleInterop": true,
         "module": "esnext",
         "noImplicitAny": true,
         "lib": ["es2017", "es7", "es6", "dom"],
         "target": "es5",
         "moduleResolution": "node"
-    },
-    "include": ["packages/**/*"],
-    "exclude": ["node_modules", "**/dist/**", "**/__tests__/**"]
+    }
 }

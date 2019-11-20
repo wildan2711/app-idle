@@ -1,39 +1,85 @@
-export interface Options {
-  /** Timeout in milliseconds to mark if the user is idle. */
+// Copyright (c) 2019 Wildan Maulana Syahidillah
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+export interface AppIdleOptions {
+  /** Timeout in milliseconds to mark if the user is idle.
+   * @default 30000
+   */
   timeout?: number
-  /** Callback called when the user has reached the idle timeout. */
+  /** Callback called when the user has reached the idle timeout.
+   * @default () => {}
+   */
   onIdle?: () => void
-  /** Callback called when the user becomes active after in an idle state. */
+  /** Callback called when the user becomes active after in an idle state.
+   * @default () => {}
+   */
   onActive?: () => void
-  /** Callback called when an event cancels the idle state */
+  /**
+   * Callback called when an event cancels the idle state
+   * @param event the event that cancels the idle state
+   * @param idleLength how long the user has been idle until the idle canceller event
+   * @default () => {}
+   */
   onCancel?: (event: Event, idleLength: number) => void
-  /** Sets whether onIdle call should be recurred, i.e: setInterval vs setTimeout  */
+  /** Sets whether onIdle call should be recurred, i.e: setInterval vs setTimeout
+   * @default false
+   */
   recurIdleCall?: boolean
-  /** Events that cancel the idle state */
-  events?: (keyof WindowEventMap)[]
+  /** Events that cancel the idle state
+   * @default ['mousemove', 'keydown', 'mousedown', 'touchstart', 'wheel']
+   */
+  events?: (keyof HTMLElementEventMap)[]
   /** Multiple tabs/windows option. Sets whether the idle state can be cancelled from multiple tabs/windows in one app.
-   * Internally uses localStorage to manage events from different tabs/windows. */
+   * Internally uses localStorage to manage events from different tabs/windows.
+   * @default true
+   */
   multi?: boolean
-  /** localStorage key used for notifying other tabs/windows */
+  /** localStorage key used for notifying other tabs/windows
+   * @default 'AppIdle'
+   */
   storageKey?: string
+  /** The DOM target to attach event listeners that cancel the idle state
+   * @default window
+   */
+  eventTarget?: Node | Document | Window
 }
 
+const noop = (): void => {}
+
 class AppIdle {
-  private options: Options = {
+  private options: AppIdleOptions = {
     timeout: 30000,
-    onActive: () => {},
-    onIdle: () => {},
-    onCancel: () => {},
+    onActive: noop,
+    onIdle: noop,
+    onCancel: noop,
     recurIdleCall: false,
-    events: ['mousemove', 'keydown', 'mousedown', 'touchstart'],
+    events: ['mousemove', 'keydown', 'mousedown', 'touchstart', 'wheel'],
     multi: true,
-    storageKey: 'AppIdle'
+    storageKey: 'AppIdle',
+    eventTarget: window
   }
-  private lastIdle: number
+  private lastActive: number
   private idleState: boolean
   private clearTimer: () => void
 
-  constructor(options: Options) {
+  constructor(options: AppIdleOptions = {}) {
     this.options = Object.assign({}, this.options, options)
   }
 
@@ -52,32 +98,80 @@ class AppIdle {
     }
   }
 
-  public start(): void {
+  /**
+   * Starts the idle timer
+   */
+  public start(): AppIdle {
     this.options.events.forEach((event) => {
-      window.addEventListener(event, this.eventHandler)
+      this.options.eventTarget.addEventListener(event, this.eventHandler)
     })
 
     /* istanbul ignore else*/
     if (this.options.multi) {
-      window.addEventListener('storage', this.storageHandler)
+      this.options.eventTarget.addEventListener('storage', this.storageHandler)
     }
 
     this.startTimer()
+    return this
   }
 
-  public stop(): void {
+  /**
+   * Stops the idle timer
+   */
+  public stop(): AppIdle {
     this.options.events.forEach((event) => {
-      window.removeEventListener(event, this.eventHandler)
+      this.options.eventTarget.removeEventListener(event, this.eventHandler)
     })
 
     /* istanbul ignore else*/
     if (this.options.multi) {
-      window.removeEventListener('storage', this.storageHandler)
+      this.options.eventTarget.removeEventListener(
+        'storage',
+        this.storageHandler
+      )
     }
 
     localStorage.removeItem(this.options.storageKey)
 
     this.stopTimer()
+    return this
+  }
+
+  /**
+   * Resets the idle state and last active
+   */
+  public reset(): AppIdle {
+    this.idleState = false
+    this.lastActive = 0
+    return this
+  }
+
+  /**
+   * Returns whether or not the user is idle
+   */
+  public isIdle(): boolean {
+    return this.idleState
+  }
+
+  /**
+   * Returns how long the user has been idle
+   */
+  public getElapsedTime(): number {
+    return Date.now() - this.lastActive
+  }
+
+  /**
+   * Returns the remaining time until the user is deemed idle
+   */
+  public getRemainingTime(): number {
+    return this.options.timeout - this.getElapsedTime()
+  }
+
+  /**
+   * Returns the timestamp the user was last active
+   */
+  public getLastActiveTime(): number {
+    return this.lastActive
   }
 
   private startTimer(): void {
@@ -92,7 +186,7 @@ class AppIdle {
         }
 
     // save timer start, to calculate idle length
-    this.lastIdle = Date.now()
+    this.lastActive = Date.now()
     const intervalId = timer.set(() => {
       this.idleState = true
       this.options.onIdle()
@@ -119,10 +213,8 @@ class AppIdle {
       this.idleState = false
       this.options.onActive()
     }
-    // calculate how long the user has been idle since last idle time
-    const idleLength = Date.now() - this.lastIdle
-    // pass idle length to callback
-    this.options.onCancel(event, idleLength)
+
+    this.options.onCancel(event, this.getElapsedTime())
 
     this.restartTimer()
   }
